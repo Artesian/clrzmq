@@ -108,8 +108,8 @@
          DebugType="$(DebugType)"
          PdbFile="$(BuildDir)\clrzmq.pdb"
          Optimize="$(Optimize)"
-         KeyFile="$(KeyFile)"
          DefineConstants="$(Constants)"
+         AllowUnsafeBlocks="true"
       />
 
     <ItemGroup>

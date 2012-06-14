@@ -17,8 +17,7 @@
         private static readonly string CurrentArch = Environment.Is64BitProcess ? "x64" : "x86";
 
         private readonly string _systemFileName;
-        private readonly string _extractedFileName;
-        private readonly SafeLibraryHandle _handle;
+        private readonly IsolatedLoader loader;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UnmanagedLibrary"/> class. Loads a dll and takes responible for freeing it.
@@ -38,24 +37,9 @@
                 throw new ArgumentException("A valid file name is expected.", "fileName");
             }
 
-            _systemFileName = fileName + Platform.LibSuffix;
-            _handle = LoadFromSystemPath();
-            
-            if (_handle == null)
-            {
-                // Ensure the correct manifest resource will always be used, even if it has already been extracted
-                _extractedFileName = fileName + "-" + CurrentArch + "-" + Assembly.GetExecutingAssembly().GetName().Version + Platform.LibSuffix;
-
-                _handle = LoadFromLocalBinPath() ?? LoadFromExecutingPath() ?? LoadFromTempPath();
-            }
-
-            if (_handle == null || _handle.IsInvalid)
-            {
-                throw new FileNotFoundException(
-                    "Unable to find " + _systemFileName + " on system path or the file found was not the expected file.",
-                    _systemFileName,
-                    Platform.GetLastLibraryError());
-            }
+            _systemFileName = fileName + Platform.LibSuffix + "." + CurrentArch;
+            loader = new IsolatedLoader();
+            loader.LoadResource(_systemFileName);
         }
 
         /// <summary>
@@ -75,66 +59,9 @@
         /// </remarks>
         public TDelegate GetUnmanagedFunction<TDelegate>(string functionName) where TDelegate : class
         {
-            IntPtr p = Platform.LoadProcedure(_handle, functionName);
-
-            if (p == IntPtr.Zero)
-            {
-                throw new MissingMethodException("Unable to find function '" + functionName + "' in dynamically loaded library.");
-            }
-
-            // Ideally, we'd just make the constraint on TDelegate be
-            // System.Delegate, but compiler error CS0702 (constrained can't be System.Delegate)
-            // prevents that. So we make the constraint system.object and do the cast from object-->TDelegate.
-            return (TDelegate)(object)Marshal.GetDelegateForFunctionPointer(p, typeof(TDelegate));
+            return loader.GetUnmanagedFunction<TDelegate>(functionName);
         }
 
-        public void Dispose()
-        {
-            if (!_handle.IsClosed)
-            {
-                _handle.Close();
-            }
-        }
-
-        private static SafeLibraryHandle NullifyInvalidHandle(SafeLibraryHandle handle)
-        {
-            return handle.IsInvalid ? null : handle;
-        }
-
-        private SafeLibraryHandle LoadFromSystemPath()
-        {
-            return NullifyInvalidHandle(Platform.OpenHandle(_systemFileName));
-        }
-
-        private SafeLibraryHandle LoadFromLocalBinPath()
-        {
-            return Directory.Exists("bin") ? ExtractAndLoadFromPath("bin") : null;
-        }
-
-        private SafeLibraryHandle LoadFromExecutingPath()
-        {
-            return ExtractAndLoadFromPath(".");
-        }
-
-        private SafeLibraryHandle LoadFromTempPath()
-        {
-            string dir = Path.Combine(Path.GetTempPath(), Assembly.GetExecutingAssembly().FullName, CurrentArch);
-            Directory.CreateDirectory(dir);
-
-            return ExtractAndLoadFromPath(dir);
-        }
-
-        private SafeLibraryHandle ExtractAndLoadFromPath(string dir)
-        {
-            string libPath = Path.GetFullPath(Path.Combine(dir, _extractedFileName));
-            string platformSuffix = "." + CurrentArch;
-
-            if (!ManifestResource.Extract(_systemFileName + platformSuffix, libPath))
-            {
-                return null;
-            }
-
-            return NullifyInvalidHandle(Platform.OpenHandle(libPath));
-        }
+        public void Dispose() { }
     }
 }
