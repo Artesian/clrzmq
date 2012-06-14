@@ -120,5 +120,29 @@
     <MakeDir Directories="$(PackageDir)" />
     <Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(PackageDir)" ContinueOnError="false" />
   </Target>
+  
+  <Target Name="PackageWithoutKeyFile">
+    <RemoveDir Directories="$(BuildDir)" />
+    <MakeDir Directories="$(BuildDir)" />
+
+    <Csc Sources="@(ZeroMQSources)"
+         DocumentationFile="$(BuildDir)\clrzmq.xml"
+         OutputAssembly="$(BuildDir)\clrzmq.dll"
+         Resources="@(EmbeddedResources)"
+         TargetType="library"
+         DebugType="$(DebugType)"
+         PdbFile="$(BuildDir)\clrzmq.pdb"
+         Optimize="$(Optimize)"
+         DefineConstants="$(Constants)"
+      />
+
+    <ItemGroup>
+      <BuildOutput Include="$(BuildDir)\*.*;$(SolutionDir)\*.txt" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(PackageDir)" />
+    <MakeDir Directories="$(PackageDir)" />
+    <Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(PackageDir)" ContinueOnError="false" />
+  </Target>
 
 </Project>
