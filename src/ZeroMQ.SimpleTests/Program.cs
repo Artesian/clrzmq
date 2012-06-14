@@ -7,6 +7,7 @@
         public static void Main(string[] args)
         {
             RunTests(
+                new HelloWorld2(),
                 new HelloWorld(),
                 new LatencyBenchmark(),
                 new ThroughputBenchmark());
