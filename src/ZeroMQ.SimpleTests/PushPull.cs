@@ -5,33 +5,33 @@
     using System.Text;
     using System.Threading;
 
-    internal class HelloWorld2 : ITest
+    internal class PushPull : ITest
     {
         public string TestName
         {
-            get { return "Hello World 2"; }
+            get { return "PushPull"; }
         }
 
         public void RunTest()
         {
-            var client = new Thread(ClientThread);
-            var server = new Thread(ServerThread);
+            var pusher = new Thread(PusherThread);
+            var puller = new Thread(PullerThread);
 
-            server.Start();
-            client.Start();
+            puller.Start();
+            pusher.Start();
 
-            server.Join();
-            client.Join();
+            puller.Join();
+            pusher.Join();
         }
 
-        private static void ClientThread()
+        private static void PusherThread()
         {
             Thread.Sleep(10);
 
             using (var context = ZmqContext.Create())
             using (var socket = context.CreateSocket(SocketType.PUSH))
             {
-                socket.Connect("tcp://localhost:8989");
+                socket.Bind("tcp://*:8989");
 
                 var frames = new List<Frame>
                 {
@@ -39,19 +39,19 @@
                     new Frame(Encoding.UTF8.GetBytes("World"))
                 };
 
-				socket.SendMessage(new ZmqMessage(frames));
+                socket.SendMessage(new ZmqMessage(frames));
             }
         }
 
-        private static void ServerThread()
+        private static void PullerThread()
         {
             using (var context = ZmqContext.Create())
             using (var socket = context.CreateSocket(SocketType.PULL))
             {
-                socket.Bind("tcp://*:8989");
+                socket.Connect("tcp://localhost:8989");
 
                 ZmqMessage request = socket.ReceiveMessage();
-				Console.WriteLine("{0} {1}", Encoding.UTF8.GetString(request[0]), Encoding.UTF8.GetString(request[1]));
+                Console.WriteLine("{0} {1}", Encoding.UTF8.GetString(request[0]), Encoding.UTF8.GetString(request[1]));
             }
         }
     }

@@ -7,10 +7,11 @@
         public static void Main(string[] args)
         {
             RunTests(
-                new HelloWorld2(),
-                new HelloWorld(),
-                new LatencyBenchmark(),
-                new ThroughputBenchmark());
+                //new HelloWorld(),
+                //new LatencyBenchmark(),
+                //new ThroughputBenchmark(),
+                //new PushPull(),
+                new RoundRobin());
 
             Console.WriteLine("Finished running tests.");
             Console.ReadLine();
