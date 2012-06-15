@@ -18,7 +18,7 @@ namespace ZeroMQ.Interop
 
         public bool Load(byte[] data)
         {
-            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Domain | IsolatedStorageScope.Assembly, null, null);
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.Machine, null, null);
             var stream = new IsolatedStorageFileStream("x.dll", FileMode.Create, store);
             string path = stream.GetType().GetField("m_FullPath", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(stream).ToString();
 
@@ -37,10 +37,7 @@ namespace ZeroMQ.Interop
             {
                 if (resourceStream == null)
                 {
-                    // No manifest resources were compiled into the current assembly. This is likely a 'manual
-                    // deployment' situation, so do not throw an exception at this point and allow all deployment
-                    // paths to be searched.
-                    return false;
+                    throw new Exception(string.Format("Couldn't find {0} in assembly resources", resourceName));
                 }
                 int len = (int)resourceStream.Length;
                 var bytes = new byte[len];
