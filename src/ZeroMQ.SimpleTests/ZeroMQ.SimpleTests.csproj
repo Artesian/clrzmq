@@ -84,9 +84,9 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="clrzmq, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="clrzmq">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\clrzmq.dll</HintPath>
+      <HintPath>..\..\publish\clrzmq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

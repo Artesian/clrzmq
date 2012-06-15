@@ -84,6 +84,10 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="clrzmq">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\publish\clrzmq.dll</HintPath>
+    </Reference>
     <Reference Include="Machine.Specifications">
       <HintPath>..\packages\Machine.Specifications.0.5.3.0\lib\Machine.Specifications.dll</HintPath>
     </Reference>
@@ -108,12 +112,6 @@
     <Compile Include="ZmqSocketSpecs\SocketOptions.cs" />
     <Compile Include="ZmqSocketSpecs\SpecContext.cs" />
     <Compile Include="ZmqSocketSpecs\Subscribe.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ZeroMQ\ZeroMQ.csproj">
-      <Project>{6FFD872F-A4A4-4EFA-9B4D-4342BA6CF250}</Project>
-      <Name>ZeroMQ</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
