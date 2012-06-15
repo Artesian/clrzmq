@@ -18,17 +18,44 @@ namespace ZeroMQ.Interop
 
         public bool Load(byte[] data)
         {
-            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.Machine, null, null);
-            var stream = new IsolatedStorageFileStream("x.dll", FileMode.Create, store);
-            string path = stream.GetType().GetField("m_FullPath", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(stream).ToString();
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.Machine | IsolatedStorageScope.Assembly, null, null);
 
-            stream.Write(data, 0, data.Length);
-            stream.Flush();
-            stream.Close();
+            const string filename = "x.dll";
 
+            string path;
+
+            IsolatedStorageFileStream stream;
+
+            if (store.FileExists(filename))
+            {
+                using (stream = new IsolatedStorageFileStream(filename, FileMode.Open, store))
+                {
+                    path = GetPhysicalPath(stream);
+                }
+            }
+            else
+            {
+                using (stream = new IsolatedStorageFileStream(filename, FileMode.Create, store))
+                {
+                    path = GetPhysicalPath(stream);
+                    stream.Write(data, 0, data.Length);
+                    stream.Flush();
+                    stream.Close();
+                }
+            }
+            
             handle = Platform.OpenHandle(path);
 
             return true;
+        }
+
+        static string GetPhysicalPath(IsolatedStorageFileStream stream)
+        {
+            return stream
+                    .GetType()
+                    .GetField("m_FullPath", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .GetValue(stream)
+                    .ToString();
         }
 
         public bool LoadResource(string resourceName)
