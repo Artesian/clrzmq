@@ -28,14 +28,14 @@ namespace ZeroMQ.Interop
 
             if (store.FileExists(filename))
             {
-                using (stream = new IsolatedStorageFileStream(filename, FileMode.Open, store))
+                using (stream = new IsolatedStorageFileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, store))
                 {
                     path = GetPhysicalPath(stream);
                 }
             }
             else
             {
-                using (stream = new IsolatedStorageFileStream(filename, FileMode.Create, store))
+                using (stream = new IsolatedStorageFileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None, store))
                 {
                     path = GetPhysicalPath(stream);
                     stream.Write(data, 0, data.Length);
