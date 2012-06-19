@@ -22,7 +22,7 @@
 
         public int Initialize()
         {
-            ContextHandle = LibZmq.zmq_init(ThreadPoolSize);
+            ContextHandle = LibZmq.zmq_ctx_new();
 
             return ContextHandle == IntPtr.Zero ? -1 : 0;
         }

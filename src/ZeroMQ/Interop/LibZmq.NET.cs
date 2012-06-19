@@ -37,7 +37,7 @@ namespace ZeroMQ.Interop
 
             if (MajorVersion >= 3)
             {
-                zmq_getmsgopt = NativeLib.GetUnmanagedFunction<ZmqGetMsgOptProc>("zmq_getmsgopt");
+                zmq_msg_get = NativeLib.GetUnmanagedFunction<ZmqMsgGetProc>("zmq_msg_get");
                 zmq_recvmsg = NativeLib.GetUnmanagedFunction<ZmqRecvMsgProc>("zmq_recvmsg");
                 zmq_sendmsg = NativeLib.GetUnmanagedFunction<ZmqSendMsgProc>("zmq_sendmsg");
                 zmq_msg_init_data = NativeLib.GetUnmanagedFunction<ZmqMsgInitDataProc>("zmq_msg_init_data");
@@ -56,7 +56,7 @@ namespace ZeroMQ.Interop
 
         private static void AssignCommonDelegates()
         {
-            zmq_init = NativeLib.GetUnmanagedFunction<ZmqInitProc>("zmq_init");
+            zmq_ctx_new = NativeLib.GetUnmanagedFunction<ZmqCtxNewProc>("zmq_ctx_new");
             zmq_term = NativeLib.GetUnmanagedFunction<ZmqTermProc>("zmq_term");
             zmq_close = NativeLib.GetUnmanagedFunction<ZmqCloseProc>("zmq_close");
             zmq_setsockopt = NativeLib.GetUnmanagedFunction<ZmqSetSockOptProc>("zmq_setsockopt");
@@ -99,8 +99,8 @@ namespace ZeroMQ.Interop
         public delegate void FreeMessageDataCallback(IntPtr data, IntPtr hint);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr ZmqInitProc(int io_threads);
-        public static ZmqInitProc zmq_init;
+        public delegate IntPtr ZmqCtxNewProc();
+        public static ZmqCtxNewProc zmq_ctx_new;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int ZmqTermProc(IntPtr context);
@@ -115,8 +115,8 @@ namespace ZeroMQ.Interop
         public static ZmqGetSockOptProc zmq_getsockopt;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int ZmqGetMsgOptProc(IntPtr message, int option, IntPtr optval, IntPtr optvallen);
-        public static ZmqGetMsgOptProc zmq_getmsgopt;
+        public delegate int ZmqMsgGetProc(IntPtr message, int option, IntPtr optval, IntPtr optvallen);
+        public static ZmqMsgGetProc zmq_msg_get;
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate int ZmqBindProc(IntPtr socket, string addr);
